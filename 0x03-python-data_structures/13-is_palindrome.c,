@@ -1,70 +1,71 @@
-#include <stdio.h>
-#include <Python.h>
+#include "lists.h"
 
 /**
- * print_python_bytes - Prints bytes information
- *
- * @p: Python Object
- * Return: no return
+ * reverse_listint - reverses a linked list
+ * @head: pointer to the first node in the list
+ * Return: pointer to the first node in the new list
  */
-void print_python_bytes(PyObject *p)
+void reverse_listint(listint_t **head)
 {
-	char *string;
-	long int size, i, limit;
+	listint_t *prev = NULL;
+	listint_t *current = *head;
+	listint_t *next = NULL;
 
-	printf("[.] bytes object info\n");
-	if (!PyBytes_Check(p))
+	while (current)
 	{
-		printf("  [ERROR] Invalid Bytes Object\n");
-		return;
+		next = current->next;
+		current->next = prev;
+		prev = current;
+		current = next;
 	}
 
-	size = ((PyVarObject *)(p))->ob_size;
-	string = ((PyBytesObject *)p)->ob_sval;
-
-	printf("  size: %ld\n", size);
-	printf("  trying string: %s\n", string);
-
-	if (size >= 10)
-		limit = 10;
-	else
-		limit = size + 1;
-
-	printf("  first %ld bytes:", limit);
-
-	for (i = 0; i < limit; i++)
-		if (string[i] >= 0)
-			printf(" %02x", string[i]);
-		else
-			printf(" %02x", 256 + string[i]);
-
-	printf("\n");
+	*head = prev;
 }
 
 /**
- * print_python_list - Prints list information
+ * is_palindrome - checks if a linked list is a palindrome
+ * @head: double pointer to the linked list
  *
- * @p: Python Object
- * Return: no return
+ * Return: 1 if it is, 0 if not
  */
-void print_python_list(PyObject *p)
+int is_palindrome(listint_t **head)
 {
-	long int size, i;
-	PyListObject *list;
-	PyObject *obj;
+	listint_t *slow = *head, *fast = *head, *temp = *head, *dup = NULL;
 
-	size = ((PyVarObject *)(p))->ob_size;
-	list = (PyListObject *)p;
+	if (*head == NULL || (*head)->next == NULL)
+		return (1);
 
-	printf("[*] Python list info\n");
-	printf("[*] Size of the Python List = %ld\n", size);
-	printf("[*] Allocated = %ld\n", list->allocated);
-
-	for (i = 0; i < size; i++)
+	while (1)
 	{
-		obj = ((PyListObject *)p)->ob_item[i];
-		printf("Element %ld: %s\n", i, ((obj)->ob_type)->tp_name);
-		if (PyBytes_Check(obj))
-			print_python_bytes(obj);
+		fast = fast->next->next;
+		if (!fast)
+		{
+			dup = slow->next;
+			break;
+		}
+		if (!fast->next)
+		{
+			dup = slow->next->next;
+			break;
+		}
+		slow = slow->next;
 	}
-}}
+
+	reverse_listint(&dup);
+
+	while (dup && temp)
+	{
+		if (temp->n == dup->n)
+		{
+			dup = dup->next;
+			temp = temp->next;
+		}
+		else
+			return (0);
+	}
+
+	if (!dup)
+		return (1);
+
+	return (0);
+}

@@ -1,13 +1,20 @@
-#!/usr/bin/python3
-def weight_average(my_list=[]):
-    if not my_list:
-        return 0
+#include <Python.h>
+#include <object.h>
+#include <listobject.h>
 
-    num = 0
-    den = 0
+/**
+* print_python_list_info - prints some basic info about pytohn list
+* @p: python object
+**/
 
-    for tup in my_list:
-        num += tup[0] * tup[1]
-        den += tup[1]
+void print_python_list_info(PyObject *p)
+{
+	long int size = PyList_Size(p);
+	int i;
+	PyListObject *obj = (PyListObject *)p;
 
-    return (num / den)
+	printf("[*] Size of the Python List = %li\n", size);
+	printf("[*] Allocated = %li\n", obj->allocated);
+	for (i = 0; i < size; i++)
+		printf("Element %i: %s\n", i, Py_TYPE(obj->ob_item[i])->tp_name);
+}
