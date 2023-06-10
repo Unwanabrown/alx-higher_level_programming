@@ -1,10 +1,13 @@
 #!/usr/bin/python3
+def weight_average(my_list=[]):
+    if not my_list:
+        return 0
 
-def divisible_by_2(my_list=[]):
-    new_l = my_list.copy()
-    for i in range(0, len(my_list)):
-        if my_list[i] % 2 == 0:
-            new_l[i] = 1
-        else:
-            new_l[i] = 0
-    return new_l
+    num = 0
+    den = 0
+
+    for tup in my_list:
+        num += tup[0] * tup[1]
+        den += tup[1]
+
+    return (num / den)

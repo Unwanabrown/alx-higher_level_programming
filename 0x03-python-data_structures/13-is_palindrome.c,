@@ -1,83 +1,70 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include "lists.h"
+#include <Python.h>
 
 /**
-  * is_palindrome - Checks if a singly linked list is a palindrome
-  * @head: The head of the singly linked list
-  *
-  * Return: 0 if it is not a palindrome, 1 if it is a palindrome
-  */
-int is_palindrome(listint_t **head)
+ * print_python_bytes - Prints bytes information
+ *
+ * @p: Python Object
+ * Return: no return
+ */
+void print_python_bytes(PyObject *p)
 {
-    listint_t *start = NULL, *end = NULL;
-    unsigned int i = 0, len = 0, len_cyc = 0, len_list = 0;
+	char *string;
+	long int size, i, limit;
 
-    if (head == NULL)
-        return (0);
-
-    if (*head == NULL)
-        return (1);
-    
-    start = *head;
-    len = listint_len(start);
-    len_cyc = len * 2;
-    len_list = len_cyc - 2;
-    end = *head;
-
-    for (; i < len_cyc; i = i + 2)
-    {
-        if (start[i].n != end[len_list].n)
-            return (0);
-
-        len_list = len_list - 2;
-    }
-
-    return (1);
-}
-
-/**
-  * get_nodeint_at_index - Gets a node from a linked list
-  * @head: The head of the linked list
-  * @index: The index to find in the linked list
-  *
-  * Return: The specific node of the linked list
-  */
-listint_t *get_nodeint_at_index(listint_t *head, unsigned int index)
-{
-	listint_t *current = head;
-	unsigned int iter_times = 0;
-
-	if (head)
+	printf("[.] bytes object info\n");
+	if (!PyBytes_Check(p))
 	{
-		while (current != NULL)
-		{
-			if (iter_times == index)
-				return (current);
-
-			current = current->next;
-			++iter_times;
-		}
+		printf("  [ERROR] Invalid Bytes Object\n");
+		return;
 	}
 
-	return (NULL);
+	size = ((PyVarObject *)(p))->ob_size;
+	string = ((PyBytesObject *)p)->ob_sval;
+
+	printf("  size: %ld\n", size);
+	printf("  trying string: %s\n", string);
+
+	if (size >= 10)
+		limit = 10;
+	else
+		limit = size + 1;
+
+	printf("  first %ld bytes:", limit);
+
+	for (i = 0; i < limit; i++)
+		if (string[i] >= 0)
+			printf(" %02x", string[i]);
+		else
+			printf(" %02x", 256 + string[i]);
+
+	printf("\n");
 }
 
 /**
-  * slistint_len - Counts the number of elements in a linked list
-  * @h: The linked list to count
-  *
-  * Return: Number of elements in the linked list
-  */
-size_t listint_len(const listint_t *h)
+ * print_python_list - Prints list information
+ *
+ * @p: Python Object
+ * Return: no return
+ */
+void print_python_list(PyObject *p)
 {
-	int lenght = 0;
+	long int size, i;
+	PyListObject *list;
+	PyObject *obj;
 
-	while (h != NULL)
+	size = ((PyVarObject *)(p))->ob_size;
+	list = (PyListObject *)p;
+
+	printf("[*] Python list info\n");
+	printf("[*] Size of the Python List = %ld\n", size);
+	printf("[*] Allocated = %ld\n", list->allocated);
+
+	for (i = 0; i < size; i++)
 	{
-		++lenght;
-		h = h->next;
+		obj = ((PyListObject *)p)->ob_item[i];
+		printf("Element %ld: %s\n", i, ((obj)->ob_type)->tp_name);
+		if (PyBytes_Check(obj))
+			print_python_bytes(obj);
 	}
-
-	return (lenght);
-}
+}}
